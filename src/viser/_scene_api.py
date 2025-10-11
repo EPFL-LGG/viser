@@ -1522,6 +1522,79 @@ class SceneApi:
             ),
         )
         return MeshHandle._make(self, message, name, wxyz, position, visible)
+    
+    def add_tube(
+        self,
+        name: str,
+        points: np.ndarray,
+        *,
+        color: RgbTupleOrArray = (72, 132, 50),
+        wireframe: bool = False,
+        opacity: float | None = None,
+        material: Literal["standard", "toon3", "toon5"] = "standard",
+        flat_shading: bool = False,
+        side: Literal["front", "back", "double"] = "front",
+        cast_shadow: bool = True,
+        receive_shadow: bool | float = True,
+        wxyz: tuple[float, float, float, float] | np.ndarray = (1.0, 0.0, 0.0, 0.0),
+        position: tuple[float, float, float] | np.ndarray = (0.0, 0.0, 0.0),
+        visible: bool = True,
+        radius: float = 0.2,
+        tubularSegments: int = 1000,
+        radialSegments: int = 10,
+        closed: bool = True,
+        smooth: bool = True,
+    ) -> MeshHandle:
+        """Add a tube to the scene.
+
+        Creates a smooth curve if smooth=True, otherwise connects the points with straight segments.
+        Please note that this differs from add_spline_catmull_rom in that this is a tube mesh, not a line.
+
+        Args:
+            name: A scene tree name. Names in the format of /parent/child can be used to
+                define a kinematic tree.
+            points: A numpy array of vertex positions. Should have shape (V, 3).
+            interpolate: Whether to interpolate between points using Catmull-Rom spline.
+            color: Color of the mesh as an RGB tuple.
+            wireframe: Boolean indicating if the mesh should be rendered as a wireframe.
+            opacity: Opacity of the mesh. None means opaque.
+            material: Material type of the mesh ('standard', 'toon3', 'toon5').
+                This argument is ignored when wireframe=True.
+            flat_shading: Whether to do flat shading. This argument is ignored
+                when wireframe=True.
+            side: Side of the surface to render ('front', 'back', 'double').
+            cast_shadow: Whether this mesh should cast shadows.
+            receive_shadow: Whether this mesh should receive shadows. If True,
+                receives shadows normally. If False, no shadows. If a float
+                (0-1), shadows are rendered with a fixed opacity regardless of
+                lighting conditions.
+            wxyz: Quaternion rotation to parent frame from local frame (R_pl).
+            position: Translation from parent frame to local frame (t_pl).
+            visible: Whether or not this mesh is initially visible.
+
+        Returns:
+            Handle for manipulating scene node.
+        """
+        message = _messages.TubeMessage(
+            name=name,
+            props=_messages.TubeProps(
+                points=points.astype(np.float32),
+                color=_encode_rgb(color),
+                wireframe=wireframe,
+                opacity=opacity,
+                flat_shading=flat_shading,
+                side=side,
+                material=material,
+                cast_shadow=cast_shadow,
+                receive_shadow=receive_shadow,
+                radius=radius,
+                tubularSegments=tubularSegments,
+                radialSegments=radialSegments,
+                closed=closed,
+                smooth=smooth,
+            ),
+        )
+        return MeshHandle._make(self, message, name, wxyz, position, visible)
 
     @deprecated_positional_shim
     def add_mesh_trimesh(

@@ -234,6 +234,32 @@ export interface MeshMessage {
     receive_shadow: boolean | number;
   };
 }
+
+/** Tube message.
+ * 
+ * Converts lines to a catmull-rom spline and then to a tube.
+ */
+export interface TubeMessage {
+  type: "TubeMessage";
+  name: string;
+  props: {
+    points: Uint8Array<ArrayBuffer>;
+    color: [number, number, number];
+    wireframe: boolean;
+    opacity: number | null;
+    flat_shading: boolean;
+    side: "front" | "back" | "double";
+    material: "standard" | "toon3" | "toon5";
+    castShadow: boolean;
+    recieveShadow: boolean;
+    radius: number;
+    tubularSegments: number;
+    radialSegments: number;
+    closed: boolean;
+    smooth: boolean;
+  };
+}
+
 /** Box message.
  *
  * (automatically generated)
@@ -1540,6 +1566,7 @@ export type Message =
   | RectAreaLightMessage
   | SpotLightMessage
   | MeshMessage
+  | TubeMessage
   | BoxMessage
   | IcosphereMessage
   | SkinnedMeshMessage
@@ -1632,6 +1659,7 @@ export type SceneNodeMessage =
   | RectAreaLightMessage
   | SpotLightMessage
   | MeshMessage
+  | TubeMessage
   | BoxMessage
   | IcosphereMessage
   | SkinnedMeshMessage
@@ -1681,6 +1709,7 @@ const typeSetSceneNodeMessage = new Set([
   "RectAreaLightMessage",
   "SpotLightMessage",
   "MeshMessage",
+  "TubeMessage",
   "BoxMessage",
   "IcosphereMessage",
   "SkinnedMeshMessage",

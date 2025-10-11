@@ -603,6 +603,14 @@ class MeshMessage(_CreateSceneNodeMessage):
 
     props: MeshProps
 
+@dataclasses.dataclass
+class TubeMessage(_CreateSceneNodeMessage):
+    """Knot message.
+
+    Vertices are internally canonicalized to float32, faces to uint32."""
+
+    props: TubeProps
+
 
 @dataclasses.dataclass
 class BoxMessage(_CreateSceneNodeMessage):
@@ -651,6 +659,38 @@ class MeshProps:
         assert self.vertices.shape[-1] == 3
         assert self.faces.shape[-1] == 3
 
+@dataclasses.dataclass
+class TubeProps:
+    points: npt.NDArray[np.float32]
+    """A numpy array of vertex positions. Should have shape (V, 3).
+    """
+    color: Tuple[int, int, int]
+    """Color of the mesh as RGB integers. """
+    wireframe: bool
+    """Boolean indicating if the mesh should be rendered as a wireframe.
+    """
+    opacity: Optional[float]
+    """Opacity of the mesh. None means opaque. """
+    flat_shading: bool
+    """Whether to do flat shading."""
+    side: Literal["front", "back", "double"]
+    """Side of the surface to render."""
+    material: Literal["standard", "toon3", "toon5"]
+    """Material type of the mesh."""
+    cast_shadow: bool
+    """Whether or not to cast shadows."""
+    receive_shadow: bool
+    """Whether to receive shadows."""
+    radius: float
+    """Radius of the tube."""
+    tubularSegments: int
+    """Number of segments around the tube."""
+    radialSegments: int
+    """Number of segments along the tube."""
+    closed: bool
+    """Whether the tube is closed."""
+    smooth: bool
+    """Whether to create a smooth tube."""
 
 @dataclasses.dataclass
 class BoxProps:

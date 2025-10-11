@@ -69,6 +69,7 @@ function createSceneTreeActions(
 ) {
   return {
     addSceneNode: (message: SceneNodeMessage) => {
+      console.log("Adding scene node", message.name, message);
       const state = store.getState();
       const existingNode = state[message.name];
       const parentName = message.name.split("/").slice(0, -1).join("/");

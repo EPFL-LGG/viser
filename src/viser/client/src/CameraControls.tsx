@@ -384,7 +384,6 @@ export function SynchronizedCameraControls() {
     T_world_camera.decompose(t_world_camera, R_world_camera, scale);
 
     const fov = three_camera instanceof THREE.PerspectiveCamera ? three_camera.fov * (Math.PI / 180.0) : null;
-    const zoom = three_camera instanceof THREE.OrthographicCamera ? three_camera.zoom : null;
 
     const camera_type = three_camera instanceof THREE.PerspectiveCamera ? "perspective" : "orthographic";
 
@@ -447,7 +446,7 @@ export function SynchronizedCameraControls() {
               number,
               number,
             ])
-          : [3.0, 3.0, 3.0]) as [number, number, number]),
+          : [0.0, 0.0, 80.0]) as [number, number, number]),
       );
       initialCameraPos.applyMatrix4(computeT_threeworld_world(viewer));
       const initialCameraLookAt = new THREE.Vector3(

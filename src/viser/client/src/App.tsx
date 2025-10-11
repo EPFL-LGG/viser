@@ -9,7 +9,7 @@ import { Notifications } from "@mantine/notifications";
 import { Environment, PerformanceMonitor, Stats } from "@react-three/drei";
 import * as THREE from "three";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useCameraType, ViewerMutable } from "./ViewerContext";
 import {
   Anchor,
@@ -50,7 +50,7 @@ import { CsmDirectionalLight } from "./CsmDirectionalLight";
 import { VISER_VERSION, GITHUB_CONTRIBUTORS, Contributor } from "./VersionInfo";
 
 // Constants
-const DEFAULT_ORTHO_ZOOM = 100;
+const DEFAULT_ORTHO_ZOOM = 2;
 
 // ======= Utility functions =======
 
@@ -516,7 +516,7 @@ function ViewerCanvas({ children }: { children: React.ReactNode }) {
       <Canvas
         key={cameraType}
         orthographic={cameraType === "orthographic"}
-        camera={{ position: [-3.0, 3.0, -3.0], near: 0.01, far: 1000.0 , ...(cameraType === "orthographic" ? { zoom: DEFAULT_ORTHO_ZOOM } : {})}}
+        camera={{ position: [0, 0, 190], near: 0.01, far: 1000.0 , ...(cameraType === "orthographic" ? { zoom: DEFAULT_ORTHO_ZOOM } : {})}}
         gl={{ preserveDrawingBuffer: true }}
         style={{ width: "100%", height: "100%" }}
         ref={(el) => (viewer.mutable.current.canvas = el)}

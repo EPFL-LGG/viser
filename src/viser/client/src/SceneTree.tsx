@@ -54,6 +54,7 @@ import { SkinnedMesh } from "./mesh/SkinnedMesh";
 import { BatchedMesh } from "./mesh/BatchedMesh";
 import { SingleGlbAsset } from "./mesh/SingleGlbAsset";
 import { BatchedGlbAsset } from "./mesh/BatchedGlbAsset";
+import { TubeMesh } from "./mesh/TubeMesh";
 
 function rgbToInt(rgb: [number, number, number]): number {
   return (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
@@ -261,6 +262,16 @@ function createObjectFactory(
           <BasicMesh ref={ref} {...message}>
             {children}
           </BasicMesh>
+        ),
+      };
+    }
+    case "TubeMessage": {
+    
+      return {
+        makeObject: (ref, children) => (
+          <TubeMesh {...message}>
+            {children}
+          </TubeMesh>
         ),
       };
     }

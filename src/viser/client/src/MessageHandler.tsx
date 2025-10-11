@@ -45,6 +45,7 @@ function useMessageHandler() {
   // Same as addSceneNode, but make a parent in the form of a dummy coordinate
   // frame if it doesn't exist yet.
   function addSceneNodeMakeParents(message: SceneNodeMessage) {
+    console.log("Adding scene node", message.name, message);
     // Make sure scene node is in attributes.
     const currentNode = viewer.useSceneTree.getState()[message.name];
 
@@ -83,8 +84,11 @@ function useMessageHandler() {
     }
 
     if (isSceneNodeMessage(message)) {
+      if (message.type === "TubeMessage") {
+        console.log("Received TubeMessage")
+      }
       // Initialize skinned mesh state.
-      if (message.type === "SkinnedMeshMessage") {
+      else if (message.type === "SkinnedMeshMessage") {
         viewerMutable.skinnedMeshState[message.name] = {
           initialized: false,
           dirty: false,
