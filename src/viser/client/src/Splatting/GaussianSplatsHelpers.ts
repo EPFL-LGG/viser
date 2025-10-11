@@ -280,7 +280,7 @@ export const GaussianSplatsContext = React.createContext<{
   updateCamera: React.MutableRefObject<
     | null
     | ((
-        camera: THREE.PerspectiveCamera,
+        camera: THREE.PerspectiveCamera | THREE.OrthographicCamera,
         width: number,
         height: number,
         blockingSort: boolean,

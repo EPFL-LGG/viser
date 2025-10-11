@@ -1095,13 +1095,14 @@ export interface ViewerCameraMessage {
   type: "ViewerCameraMessage";
   wxyz: [number, number, number, number];
   position: [number, number, number];
-  fov: number;
+  fov: number | null;
   near: number;
   far: number;
   image_height: number;
   image_width: number;
   look_at: [number, number, number];
   up_direction: [number, number, number];
+  camera_type: "orthographic" | "perspective";
 }
 /** Message for a raycast-like pointer in the scene.
  * origin is the viewing camera position, in world coordinates.
@@ -1232,6 +1233,13 @@ export interface SetCameraFarMessage {
 export interface SetCameraFovMessage {
   type: "SetCameraFovMessage";
   fov: number;
+}
+
+/** Server -> client message to set the camera's type.
+ */
+export interface SetCameraTypeMessage {
+  type: "SetCameraTypeMessage";
+  camera_type: "orthographic" | "perspective";
 }
 /** Server -> client message to set a scene node's orientation.
  *
@@ -1420,7 +1428,8 @@ export interface GetRenderRequestMessage {
   quality: number;
   wxyz: [number, number, number, number];
   position: [number, number, number];
-  fov: number;
+  fov: number | null;
+  camera_type: "orthographic" | "perspective"
 }
 /** Message from client->server carrying a render.
  *
@@ -1581,6 +1590,7 @@ export type Message =
   | SetCameraNearMessage
   | SetCameraFarMessage
   | SetCameraFovMessage
+  | SetCameraTypeMessage
   | SetOrientationMessage
   | SetPositionMessage
   | TransformControlsUpdateMessage

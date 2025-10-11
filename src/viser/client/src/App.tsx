@@ -9,8 +9,8 @@ import { Notifications } from "@mantine/notifications";
 import { Environment, PerformanceMonitor, Stats } from "@react-three/drei";
 import * as THREE from "three";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
-import React, { useEffect, useMemo } from "react";
-import { ViewerMutable } from "./ViewerContext";
+import React, { useEffect, useMemo, useState } from "react";
+import { useCameraType, ViewerMutable } from "./ViewerContext";
 import {
   Anchor,
   Box,
@@ -48,6 +48,9 @@ import { BrowserWarning } from "./BrowserWarning";
 import { MacWindowWrapper } from "./MacWindowWrapper";
 import { CsmDirectionalLight } from "./CsmDirectionalLight";
 import { VISER_VERSION, GITHUB_CONTRIBUTORS, Contributor } from "./VersionInfo";
+
+// Constants
+const DEFAULT_ORTHO_ZOOM = 100;
 
 // ======= Utility functions =======
 
@@ -234,6 +237,7 @@ function ViewerRoot() {
     useGui: useGuiState(initialServer),
     useDevSettings: devSettingsStore,
     mutable,
+    useCameraType,
   };
 
   // Apply URL dark mode setting if provided.
@@ -501,13 +505,18 @@ function ViewerCanvas({ children }: { children: React.ReactNode }) {
     ),
     [children, memoizedCameraControls],
   );
+
+  const { cameraType } = viewer.useCameraType();
+
   return (
     <div
       ref={inViewRef}
       style={{ position: "relative", zIndex: 0, width: "100%", height: "100%" }}
     >
       <Canvas
-        camera={{ position: [-3.0, 3.0, -3.0], near: 0.01, far: 1000.0 }}
+        key={cameraType}
+        orthographic={cameraType === "orthographic"}
+        camera={{ position: [-3.0, 3.0, -3.0], near: 0.01, far: 1000.0 , ...(cameraType === "orthographic" ? { zoom: DEFAULT_ORTHO_ZOOM } : {})}}
         gl={{ preserveDrawingBuffer: true }}
         style={{ width: "100%", height: "100%" }}
         ref={(el) => (viewer.mutable.current.canvas = el)}
@@ -825,9 +834,9 @@ function BackgroundImage() {
 
   // Update position and rotation in render loop.
   useFrame(({ camera }) => {
-    if (!(camera instanceof THREE.PerspectiveCamera)) {
+    if (!(camera instanceof THREE.PerspectiveCamera || camera instanceof THREE.OrthographicCamera)) {
       console.error(
-        "Camera is not a perspective camera, cannot render background image.",
+        "Camera is not a perspective or orthographic camera, cannot render background image.",
       );
       return;
     }
@@ -840,8 +849,16 @@ function BackgroundImage() {
     mesh.quaternion.copy(camera.quaternion);
 
     // Size based on camera parameters.
-    const f = camera.getFocalLength();
-    mesh.scale.set(camera.getFilmWidth() / f, camera.getFilmHeight() / f, 1.0);
+    if(camera instanceof THREE.OrthographicCamera){
+      mesh.scale.set(
+        (camera.right - camera.left) / (2 * camera.zoom),
+        (camera.top - camera.bottom) / (2 * camera.zoom),
+        1.0
+      );
+    } else {
+      const f = camera.getFocalLength();
+      mesh.scale.set(camera.getFilmWidth() / f, camera.getFilmHeight() / f, 1.0);
+    }
 
     // Update shader uniforms.
     backgroundMaterial.uniforms.cameraNear.value = camera.near;
@@ -862,7 +879,7 @@ function SceneContextSetter() {
   const { mutable } = React.useContext(ViewerContext)!;
   mutable.current.scene = useThree((state) => state.scene);
   mutable.current.camera = useThree(
-    (state) => state.camera as THREE.PerspectiveCamera,
+    (state) => state.camera as THREE.PerspectiveCamera | THREE.OrthographicCamera,
   );
   return null;
 }

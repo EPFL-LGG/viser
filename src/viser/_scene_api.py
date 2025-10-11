@@ -272,6 +272,17 @@ class SceneApi:
                 )
             )
 
+    def set_camera_type(self, camera_type: Literal["perspective", "orthographic"]) -> None:
+        """Set the type of camera used for viewing the scene.
+
+        Args:
+            camera_type: The type of camera to use. Either "perspective" or "orthographic".
+        """
+        print(f"Setting camera type to {camera_type}")
+        self._websock_interface.queue_message(
+            _messages.SetCameraTypeMessage(camera_type)
+        )
+
     def set_global_visibility(self, visible: bool) -> None:
         """Set visibility for all scene nodes. If set to False, all scene nodes
         will be hidden.

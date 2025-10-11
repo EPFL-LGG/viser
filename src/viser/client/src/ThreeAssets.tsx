@@ -146,18 +146,31 @@ export const PointCloud = React.forwardRef<
   const rendererSize = new THREE.Vector2();
   useFrame(() => {
     // Match point scale to behavior of THREE.PointsMaterial().
+    // For perspective camera
     // point px height / actual height = point meters height / frustum meters height
     // frustum meters height = math.tan(fov / 2.0) * z
     // point px height = (point meters height / math.tan(fov / 2.0) * actual height)  / z
-    material.uniforms.scale.value =
-      (props.point_size /
+    // For orthographic camera
+    // point px height / actual height = point meters height / frustum meters height
+    // frustum meters height = camera.top-camera.bottom
+    // point px height = (point meters height / (camera.top-camera.bottom) * actual height)  / z
+    let scale;
+    const camera = getThreeState().camera
+    if(camera instanceof THREE.PerspectiveCamera) {
+      scale = (props.point_size /
         Math.tan(
-          (((getThreeState().camera as THREE.PerspectiveCamera).fov / 180.0) *
+          ((camera.fov / 180.0) *
             Math.PI) /
             2.0,
-        )) *
-      getThreeState().gl.getSize(rendererSize).height *
-      getThreeState().gl.getPixelRatio();
+        ))
+    } else if(camera instanceof THREE.OrthographicCamera) {
+      scale = props.point_size / (camera.top-camera.bottom)
+    } else {
+      console.error("Camera is not a perspective or orthographic camera.");
+      return;
+    }
+    scale *= getThreeState().gl.getSize(rendererSize).height * getThreeState().gl.getPixelRatio();
+    material.uniforms.scale.value = scale;
   });
   return (
     <points

@@ -184,7 +184,7 @@ function SplatRendererImpl() {
 
   // Track previous camera parameters to avoid redundant updates.
   const prevCameraParams = React.useRef({
-    fovY: 0,
+    fovYOrHeight: 0,
     aspect: 0,
     near: 0,
     far: 0,
@@ -210,7 +210,7 @@ function SplatRendererImpl() {
 
   const updateCamera = React.useCallback(
     function updateCamera(
-      camera: THREE.PerspectiveCamera,
+      camera: THREE.PerspectiveCamera | THREE.OrthographicCamera,
       width: number,
       height: number,
       blockingSort: boolean,
@@ -220,7 +220,15 @@ function SplatRendererImpl() {
       camera.updateProjectionMatrix();
 
       // Update camera parameter uniforms.
-      const fovY = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 180.0;
+      let fovYOrHeight;
+      if(camera instanceof THREE.PerspectiveCamera) {
+        fovYOrHeight = camera.fov * Math.PI / 180.0 ;
+      } else if(camera instanceof THREE.OrthographicCamera) {
+        fovYOrHeight = camera.top-camera.bottom
+      } else {
+        console.error("Camera is not a perspective or orthographic camera.");
+        return
+      }
       const aspect = width / height;
 
       if (meshProps.material === undefined) return;
@@ -318,14 +326,13 @@ function SplatRendererImpl() {
       const params = prevCameraParams.current;
 
       if (
-        fovY !== params.fovY ||
+        fovYOrHeight !== params.fovYOrHeight ||
         aspect !== params.aspect ||
         near !== params.near ||
         far !== params.far
       ) {
         // Cache the expensive trig calculation.
-        const tanHalfFovY = Math.tan(fovY / 2);
-        const top = near * tanHalfFovY;
+        const top = camera instanceof THREE.PerspectiveCamera ? Math.tan(fovYOrHeight / 2) * near : fovYOrHeight;
         const bottom = -top;
         const right = top * aspect;
         const left = -right;
@@ -341,7 +348,7 @@ function SplatRendererImpl() {
         );
 
         // Store current parameters.
-        params.fovY = fovY;
+        params.fovYOrHeight = fovYOrHeight;
         params.aspect = aspect;
         params.near = near;
         params.far = far;
@@ -367,7 +374,7 @@ function SplatRendererImpl() {
     );
 
     updateCamera(
-      state.camera as THREE.PerspectiveCamera,
+      state.camera as THREE.PerspectiveCamera | THREE.OrthographicCamera,
       state.viewport.dpr * state.size.width,
       state.viewport.dpr * state.size.height,
       false /* blockingSort */,

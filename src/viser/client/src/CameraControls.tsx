@@ -4,7 +4,7 @@ import { useThree } from "@react-three/fiber";
 import * as holdEvent from "hold-event";
 import React, { useContext, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { PerspectiveCamera } from "three";
+import { PerspectiveCamera, OrthographicCamera } from "three";
 import * as THREE from "three";
 import { computeT_threeworld_world } from "./WorldTransformUtils";
 import { useThrottledMessageSender } from "./WebsocketUtils";
@@ -25,12 +25,22 @@ function CrosshairVisual({
     if (groupRef.current && visible) {
       // Get world position of the crosshair.
       groupRef.current.getWorldPosition(worldPos);
+      let scale;
+      if(camera instanceof THREE.PerspectiveCamera) {
       // Scale based on distance and FOV to maintain consistent visual size.
       const distance = camera.position.distanceTo(worldPos);
       const fovScale = Math.tan(
         ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 360,
       );
-      groupRef.current.scale.setScalar((distance / 20) * fovScale);
+      scale = (distance / 20) * fovScale;
+      } else if (camera instanceof THREE.OrthographicCamera) {
+        // Scale based on zoom level to maintain consistent visual size.
+        scale = (camera.top - camera.bottom) / (40 * camera.zoom)
+      } else {
+        console.error("Camera is not a perspective or orthographic camera.");
+        return
+      }
+      groupRef.current.scale.setScalar(scale);
     }
   });
 
@@ -133,13 +143,13 @@ function OrbitOriginTool({
 
 export function SynchronizedCameraControls() {
   const viewer = useContext(ViewerContext)!;
-  const camera = useThree((state) => state.camera as PerspectiveCamera);
+  const camera = useThree((state) => state.camera as PerspectiveCamera | OrthographicCamera);
 
   const sendCameraThrottled = useThrottledMessageSender(20).send;
 
   // Helper for resetting camera poses.
   const initialCameraRef = useRef<{
-    camera: PerspectiveCamera;
+    camera: PerspectiveCamera | OrthographicCamera;
     lookAt: THREE.Vector3;
   } | null>(null);
 
@@ -373,6 +383,12 @@ export function SynchronizedCameraControls() {
 
     T_world_camera.decompose(t_world_camera, R_world_camera, scale);
 
+    const fov = three_camera instanceof THREE.PerspectiveCamera ? three_camera.fov * (Math.PI / 180.0) : null;
+    const zoom = three_camera instanceof THREE.OrthographicCamera ? three_camera.zoom : null;
+
+    const camera_type = three_camera instanceof THREE.PerspectiveCamera ? "perspective" : "orthographic";
+
+
     sendCameraThrottled({
       type: "ViewerCameraMessage",
       wxyz: [
@@ -384,11 +400,12 @@ export function SynchronizedCameraControls() {
       position: t_world_camera.toArray(),
       image_height: canvas.height,
       image_width: canvas.width,
-      fov: (three_camera.fov * Math.PI) / 180.0,
+      fov: fov,
       near: three_camera.near,
       far: three_camera.far,
       look_at: [lookAt.x, lookAt.y, lookAt.z],
       up_direction: [up.x, up.y, up.z],
+      camera_type: camera_type,
     });
 
     // Log camera.

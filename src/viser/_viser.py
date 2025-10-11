@@ -40,7 +40,7 @@ class _CameraHandleState:
     client: ClientHandle
     wxyz: npt.NDArray[np.float64]
     position: npt.NDArray[np.float64]
-    fov: float
+    fov: float | None
     image_height: int
     image_width: int
     near: float
@@ -49,6 +49,7 @@ class _CameraHandleState:
     up_direction: npt.NDArray[np.float64]
     update_timestamp: float
     camera_cb: list[Callable[[CameraHandle], None | Coroutine]]
+    camera_type: Literal["orthographic", "perspective"]
 
 
 class CameraHandle:
@@ -69,6 +70,7 @@ class CameraHandle:
             up_direction=np.zeros(3),
             update_timestamp=0.0,
             camera_cb=[],
+            camera_type="perspective",
         )
 
     @property
@@ -162,14 +164,16 @@ class CameraHandle:
 
     @property
     def fov(self) -> float:
-        """Vertical field of view of the camera, in radians. Synchronized automatically
-        when assigned."""
+        """Vertical field of view of a perspective camera, in radians. None for orthographic.
+        Synchronized automatically when assigned."""
         assert self._state.update_timestamp != 0.0
         return self._state.fov
 
     @fov.setter
     def fov(self, fov: float) -> None:
-        if np.allclose(self._state.fov, fov):
+        if self._state.fov is None and fov is None:
+            return
+        if self._state.fov is not None and fov is not None and np.allclose(self._state.fov, fov):
             return
         self._state.fov = fov
         self._state.update_timestamp = time.time()
@@ -209,6 +213,22 @@ class CameraHandle:
         self._state.update_timestamp = time.time()
         self._state.client._websock_connection.queue_message(
             _messages.SetCameraFarMessage(far)
+        )
+
+    @property
+    def camera_type(self) -> Literal["orthographic", "perspective"]:
+        """Camera type, e.g., 'perspective' or 'orthographic'.
+        Synchronized automatically when assigned."""
+        return self._state.camera_type
+
+    @camera_type.setter
+    def camera_type(self, cam_type: Literal["orthographic", "perspective"]) -> None:
+        if cam_type == self._state.camera_type:
+            return
+        self._state.camera_type = cam_type
+        self._state.update_timestamp = time.time()
+        self._state.client._websock_connection.queue_message(
+            _messages.SetCameraTypeMessage(cam_type)
         )
 
     @property
@@ -580,7 +600,8 @@ class ClientHandle(DeprecatedAttributeShim if not TYPE_CHECKING else object):
                     position if position is not None else self.camera.position, 3
                 ),
                 wxyz=cast_vector(wxyz if wxyz is not None else self.camera.wxyz, 4),
-                fov=fov if fov is not None else self.camera.fov,
+                fov=None,
+                camera_type=self.camera.camera_type
             )
         )
         render_ready_event.wait()
@@ -685,6 +706,7 @@ class ViserServer(DeprecatedAttributeShim if not TYPE_CHECKING else object):
                     up_direction=np.array(message.up_direction),
                     update_timestamp=time.time(),
                     camera_cb=client.camera._state.camera_cb,
+                    camera_type=client.camera._state.camera_type,
                 )
 
                 # We consider a client to be connected after the first camera message is

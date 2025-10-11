@@ -177,13 +177,14 @@ class ViewerCameraMessage(Message):
 
     wxyz: Tuple[float, float, float, float]
     position: Tuple[float, float, float]
-    fov: float
+    fov: float | None
     near: float
     far: float
     image_height: int
     image_width: int
     look_at: Tuple[float, float, float]
     up_direction: Tuple[float, float, float]
+    camera_type: Literal["orthographic", "perspective"]
 
 
 # The list of scene pointer events supported by the viser frontend.
@@ -934,6 +935,11 @@ class SetCameraFarMessage(Message):
 
     far: float
 
+@dataclasses.dataclass
+class SetCameraTypeMessage(Message):
+    """Server -> client message to set the camera's type."""
+
+    camera_type: Literal["orthographic", "perspective"]
 
 @dataclasses.dataclass
 class SetCameraFovMessage(Message):
@@ -1631,7 +1637,8 @@ class GetRenderRequestMessage(Message):
 
     wxyz: Tuple[float, float, float, float]
     position: Tuple[float, float, float]
-    fov: float
+    fov: float | None
+    camera_type: Literal["orthographic", "perspective"]
 
 
 @dataclasses.dataclass

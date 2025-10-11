@@ -10,6 +10,7 @@ import { UseSceneTree } from "./SceneTree";
 
 import { UseGui } from "./ControlPanel/GuiState";
 import { GetRenderRequestMessage, Message } from "./WebsocketMessages";
+import { create } from "zustand";
 
 // Type definitions for all mutable state.
 export type ViewerMutable = {
@@ -22,7 +23,7 @@ export type ViewerMutable = {
   canvas: HTMLCanvasElement | null;
   canvas2d: HTMLCanvasElement | null;
   scene: THREE.Scene | null;
-  camera: THREE.PerspectiveCamera | null;
+  camera: THREE.PerspectiveCamera | THREE.OrthographicCamera | null;
   backgroundMaterial: THREE.ShaderMaterial | null;
   cameraControl: CameraControls | null;
 
@@ -77,8 +78,21 @@ export type ViewerContextContents = {
 
   // Single reference to all mutable state.
   mutable: React.MutableRefObject<ViewerMutable>;
+
+  useCameraType: typeof useCameraType;
 };
 
 export const ViewerContext = React.createContext<null | ViewerContextContents>(
   null,
 );
+
+export interface CameraType {
+  cameraType: "perspective" | "orthographic";
+  setCameraType: (type: "perspective" | "orthographic") => void;
+}
+
+
+export const useCameraType = create<CameraType>((set) => ({
+  cameraType: "perspective" as "perspective" | "orthographic",
+  setCameraType: (type: "perspective" | "orthographic") => set({ cameraType: type }),
+}));

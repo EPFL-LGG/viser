@@ -40,6 +40,7 @@ function useMessageHandler() {
   const removeGui = viewer.useGui((state) => state.removeGui);
   const updateGuiProps = viewer.useGui((state) => state.updateGuiProps);
   const updateUploadState = viewer.useGui((state) => state.updateUploadState);
+  const setCameraType = viewer.useCameraType().setCameraType;
 
   // Same as addSceneNode, but make a parent in the form of a dummy coordinate
   // frame if it doesn't exist yet.
@@ -303,6 +304,10 @@ function useMessageHandler() {
       }
       case "SetCameraFovMessage": {
         const camera = viewerMutable.camera!;
+        if(!(camera instanceof THREE.PerspectiveCamera)) {
+          console.log("Can't set fov for non-perspective camera");
+          return;
+        }
         // tan(fov / 2.0) = 0.5 * film height / focal length
         // focal length = 0.5 * film height / tan(fov / 2.0)
         camera.setFocalLength(
@@ -321,6 +326,11 @@ function useMessageHandler() {
         const camera = viewerMutable.camera!;
         camera.far = message.far;
         camera.updateProjectionMatrix();
+        return;
+      }
+      case "SetCameraTypeMessage": {
+        console.log("Setting camera type to ", message.camera_type);
+        setCameraType!(message.camera_type);
         return;
       }
       case "SetOrientationMessage": {
@@ -611,13 +621,20 @@ export function FrameSynchronizedMessageHandler() {
         // Render the scene using the virtual camera
         const T_threeworld_world = computeT_threeworld_world(viewer);
 
-        // Create a new perspective camera
-        const camera = new THREE.PerspectiveCamera(
-          THREE.MathUtils.radToDeg(cameraFov),
-          targetWidth / targetHeight,
-          0.01, // Near.
-          1000.0, // Far.
-        );
+        // Create a new camera of the right type.
+        const camera = (viewerMutable.camera instanceof THREE.PerspectiveCamera) ?
+          new THREE.PerspectiveCamera(
+            THREE.MathUtils.radToDeg(cameraFov!),
+            targetWidth / targetHeight,
+            0.01, // Near.
+            1000.0, // Far.
+          ) : 
+          new THREE.OrthographicCamera(
+            -targetWidth / 2,
+            targetWidth / 2,
+            targetHeight / 2,
+            -targetHeight / 2
+          );
 
         // Set camera pose.
         camera.position.set(...cameraPosition).applyMatrix4(T_threeworld_world);
