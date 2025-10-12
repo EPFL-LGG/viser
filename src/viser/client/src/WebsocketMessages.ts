@@ -142,6 +142,10 @@ export interface DirectionalLightMessage {
     color: [number, number, number];
     intensity: number;
     cast_shadow: boolean;
+    max_far: number;
+    shadow_map_size: number;
+    light_far: number;
+    light_near: number;
   };
 }
 /** Ambient light message.
@@ -250,13 +254,14 @@ export interface TubeMessage {
     flat_shading: boolean;
     side: "front" | "back" | "double";
     material: "standard" | "toon3" | "toon5";
-    castShadow: boolean;
-    recieveShadow: boolean;
+    cast_shadow: boolean;
+    recieve_shadow: boolean;
     radius: number;
-    tubularSegments: number;
-    radialSegments: number;
+    tubular_segments: number;
+    radial_segments: number;
     closed: boolean;
     smooth: boolean;
+    align: boolean
   };
 }
 

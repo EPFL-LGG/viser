@@ -84,11 +84,8 @@ function useMessageHandler() {
     }
 
     if (isSceneNodeMessage(message)) {
-      if (message.type === "TubeMessage") {
-        console.log("Received TubeMessage")
-      }
       // Initialize skinned mesh state.
-      else if (message.type === "SkinnedMeshMessage") {
+      if (message.type === "SkinnedMeshMessage") {
         viewerMutable.skinnedMeshState[message.name] = {
           initialized: false,
           dirty: false,
@@ -333,7 +330,6 @@ function useMessageHandler() {
         return;
       }
       case "SetCameraTypeMessage": {
-        console.log("Setting camera type to ", message.camera_type);
         setCameraType!(message.camera_type);
         return;
       }
@@ -757,11 +753,15 @@ export function FrameSynchronizedMessageHandler() {
         // Apply accumulated prop updates to the zustand state.
         const currentState = viewer.useSceneTree.getState();
         for (const [k, v] of Object.entries(updates)) {
+          console.log("Update:", k, v)
+          console.log("Current state:", currentState)
+          console.log("Updates", updates)
           if (!(k in currentState)) {
             console.log(`(OK) Tried to update non-existent scene node ${k}`);
             continue;
           }
           updates[k] = { ...currentState[k], ...v };
+          console.log("Updates", updates)
         }
         viewer.useSceneTree.setState(updates);
       }

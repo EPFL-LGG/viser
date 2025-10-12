@@ -53,12 +53,12 @@ export const TubeMesh = React.forwardRef<
             curve = curvePath;
         }
 
-        const alignmentQuaternion = findRotation(points);
+        const alignmentQuaternion = message.props.align ? findRotation(points) : new THREE.Quaternion();
         const alignmentMatrix = new THREE.Matrix4().makeRotationFromQuaternion(alignmentQuaternion);
 
-        const tubularSegments = message.props.tubularSegments;
+        const tubularSegments = message.props.tubular_segments;
         const radius = message.props.radius;
-        const radialSegments = message.props.radialSegments;
+        const radialSegments = message.props.radial_segments;
         const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, message.props.closed);
         geometry.applyMatrix4(alignmentMatrix);
         geometry.computeVertexNormals();
@@ -82,8 +82,8 @@ export const TubeMesh = React.forwardRef<
 
     // Check if we should render a shadow mesh.
     const shadowOpacity =
-        typeof message.props.recieveShadow === "number"
-            ? message.props.recieveShadow
+        typeof message.props.recieve_shadow === "number"
+            ? message.props.recieve_shadow
             : 0.0;
 
     // Create shadow material for shadow mesh.
@@ -101,8 +101,8 @@ export const TubeMesh = React.forwardRef<
             ref={ref}
             geometry={geometry}
             material={material}
-            castShadow={message.props.castShadow}
-            receiveShadow={message.props.recieveShadow === true}
+            castShadow={message.props.cast_shadow}
+            receiveShadow={message.props.recieve_shadow === true}
         >
             <OutlinesIfHovered
                 enableCreaseAngle={

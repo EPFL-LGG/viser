@@ -446,7 +446,7 @@ export function SynchronizedCameraControls() {
               number,
               number,
             ])
-          : [0.0, 0.0, 80.0]) as [number, number, number]),
+          : [3.0, 3.0, 3.0]) as [number, number, number]),
       );
       initialCameraPos.applyMatrix4(computeT_threeworld_world(viewer));
       const initialCameraLookAt = new THREE.Vector3(

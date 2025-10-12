@@ -16,6 +16,7 @@ from typing import (
     Union,
     cast,
 )
+import time
 
 import numpy as np
 import numpy.typing as npt
@@ -472,6 +473,11 @@ class MeshHandle(
 ):
     """Handle for mesh objects."""
 
+class TubeHandle(
+    _ClickableSceneNodeHandle,
+    _messages.TubeProps,
+):
+    """Handle for tube objects."""
 
 class BoxHandle(
     _ClickableSceneNodeHandle,

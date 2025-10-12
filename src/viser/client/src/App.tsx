@@ -516,7 +516,7 @@ function ViewerCanvas({ children }: { children: React.ReactNode }) {
       <Canvas
         key={cameraType}
         orthographic={cameraType === "orthographic"}
-        camera={{ position: [0, 0, 190], near: 0.01, far: 1000.0 , ...(cameraType === "orthographic" ? { zoom: DEFAULT_ORTHO_ZOOM } : {})}}
+        camera={{ position: [-3.0, 3.0, -3.0], near: 0.01, far: 1000.0 , ...(cameraType === "orthographic" ? { zoom: DEFAULT_ORTHO_ZOOM } : {})}}
         gl={{ preserveDrawingBuffer: true }}
         style={{ width: "100%", height: "100%" }}
         ref={(el) => (viewer.mutable.current.canvas = el)}

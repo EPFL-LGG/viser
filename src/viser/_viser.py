@@ -32,7 +32,6 @@ from ._threadpool_exceptions import print_threadpool_errors
 from ._tunnel import ViserTunnel
 from .infra._infra import StateSerializer
 
-
 @dataclasses.dataclass
 class _CameraHandleState:
     """Information about a client's camera state."""

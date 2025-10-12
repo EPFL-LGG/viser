@@ -60,6 +60,7 @@ from ._scene_handles import (
     SpotLightHandle,
     TransformControlsEvent,
     TransformControlsHandle,
+    TubeHandle,
     _ClickableSceneNodeHandle,
     _TransformControlsState,
 )
@@ -272,17 +273,6 @@ class SceneApi:
                 )
             )
 
-    def set_camera_type(self, camera_type: Literal["perspective", "orthographic"]) -> None:
-        """Set the type of camera used for viewing the scene.
-
-        Args:
-            camera_type: The type of camera to use. Either "perspective" or "orthographic".
-        """
-        print(f"Setting camera type to {camera_type}")
-        self._websock_interface.queue_message(
-            _messages.SetCameraTypeMessage(camera_type)
-        )
-
     def set_global_visibility(self, visible: bool) -> None:
         """Set visibility for all scene nodes. If set to False, all scene nodes
         will be hidden.
@@ -309,6 +299,10 @@ class SceneApi:
         wxyz: tuple[float, float, float, float] | np.ndarray = (1.0, 0.0, 0.0, 0.0),
         position: tuple[float, float, float] = (0.0, 0.0, 0.0),
         visible: bool = True,
+        max_far: float = 1000.0,
+        shadow_map_size: int = 8192,
+        light_far: float = 2000.0,
+        light_near: float = 0.1,
     ) -> DirectionalLightHandle:
         """
         Add a directional light to the scene.
@@ -328,7 +322,7 @@ class SceneApi:
         """
 
         message = _messages.DirectionalLightMessage(
-            name, _messages.DirectionalLightProps(color, intensity, cast_shadow)
+            name, _messages.DirectionalLightProps(color, intensity, cast_shadow, max_far, shadow_map_size, light_far, light_near)
         )
         return DirectionalLightHandle._make(
             self, message, name, wxyz, position, visible
@@ -1538,13 +1532,14 @@ class SceneApi:
         receive_shadow: bool | float = True,
         wxyz: tuple[float, float, float, float] | np.ndarray = (1.0, 0.0, 0.0, 0.0),
         position: tuple[float, float, float] | np.ndarray = (0.0, 0.0, 0.0),
-        visible: bool = True,
         radius: float = 0.2,
-        tubularSegments: int = 1000,
-        radialSegments: int = 10,
+        tubular_segments: int = 1000,
+        radial_segments: int = 10,
         closed: bool = True,
         smooth: bool = True,
-    ) -> MeshHandle:
+        align: bool = True,
+        visibile: bool = True
+    ) -> TubeHandle:
         """Add a tube to the scene.
 
         Creates a smooth curve if smooth=True, otherwise connects the points with straight segments.
@@ -1570,6 +1565,12 @@ class SceneApi:
                 lighting conditions.
             wxyz: Quaternion rotation to parent frame from local frame (R_pl).
             position: Translation from parent frame to local frame (t_pl).
+            radius: Radius of the tube
+            tubular_segments: Number of segments along the length of the tube.
+            radial_segments: Number of segments around the circumference of the tube's cross-section.
+            closed: If the tube is closed (ends at the same point as it starts).
+            smooth: Whether it should be converted to a smooth catmull-rom curve.
+            align: Whether it should be aligned with the xy plane.
             visible: Whether or not this mesh is initially visible.
 
         Returns:
@@ -1588,13 +1589,14 @@ class SceneApi:
                 cast_shadow=cast_shadow,
                 receive_shadow=receive_shadow,
                 radius=radius,
-                tubularSegments=tubularSegments,
-                radialSegments=radialSegments,
+                tubular_segments=tubular_segments,
+                radial_segments=radial_segments,
                 closed=closed,
                 smooth=smooth,
+                align=align
             ),
         )
-        return MeshHandle._make(self, message, name, wxyz, position, visible)
+        return TubeHandle._make(self, message, name, wxyz, position, visibile)
 
     @deprecated_positional_shim
     def add_mesh_trimesh(

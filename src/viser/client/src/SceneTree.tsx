@@ -266,10 +266,9 @@ function createObjectFactory(
       };
     }
     case "TubeMessage": {
-    
       return {
         makeObject: (ref, children) => (
-          <TubeMesh {...message}>
+          <TubeMesh ref={ref} {...message}>
             {children}
           </TubeMesh>
         ),
@@ -604,6 +603,10 @@ function createObjectFactory(
               lightIntensity={message.props.intensity}
               color={rgbToInt(message.props.color)}
               castShadow={message.props.cast_shadow}
+              maxFar={message.props.max_far}
+              shadowMapSize={message.props.shadow_map_size}
+              lightFar={message.props.light_far}
+              lightNear={message.props.light_near}
             />
             {children}
           </group>

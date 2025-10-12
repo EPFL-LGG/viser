@@ -457,6 +457,14 @@ class DirectionalLightProps:
     """Intensity of the directional light."""
     cast_shadow: bool
     """If set to true mesh will cast a shadow. """
+    max_far: float
+    """View frustum far plane."""
+    shadow_map_size: int
+    """Size of the shadow map."""
+    light_far: float
+    """Far plane of the shadow-casting camera"""
+    light_near: float
+    """Near plane of the shadow-casting camera"""
 
 
 @dataclasses.dataclass
@@ -683,14 +691,16 @@ class TubeProps:
     """Whether to receive shadows."""
     radius: float
     """Radius of the tube."""
-    tubularSegments: int
+    tubular_segments: int
     """Number of segments around the tube."""
-    radialSegments: int
+    radial_segments: int
     """Number of segments along the tube."""
     closed: bool
     """Whether the tube is closed."""
     smooth: bool
     """Whether to create a smooth tube."""
+    align: bool
+    """Whether to align the tube with XY axis"""
 
 @dataclasses.dataclass
 class BoxProps:
