@@ -300,9 +300,9 @@ class SceneApi:
         position: tuple[float, float, float] = (0.0, 0.0, 0.0),
         visible: bool = True,
         max_far: float = 1000.0,
-        shadow_map_size: int = 8192,
+        shadow_map_size: int = 1024,
         light_far: float = 2000.0,
-        light_near: float = 0.1,
+        light_near: float = 0.0001,
     ) -> DirectionalLightHandle:
         """
         Add a directional light to the scene.
