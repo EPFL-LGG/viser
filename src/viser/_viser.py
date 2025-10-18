@@ -304,6 +304,10 @@ class CameraHandle:
         """
         self._state.camera_cb.append(callback)
         return callback
+    
+    def clear_callbacks(self) -> None:
+        """Remove all previously registered camera update callbacks."""
+        self._state.camera_cb.clear()
 
     def get_render(
         self,

@@ -692,9 +692,9 @@ class TubeProps:
     radius: float
     """Radius of the tube."""
     tubular_segments: int
-    """Number of segments around the tube."""
-    radial_segments: int
     """Number of segments along the tube."""
+    radial_segments: int
+    """Number of segments around the tube."""
     closed: bool
     """Whether the tube is closed."""
     smooth: bool
