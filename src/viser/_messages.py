@@ -186,6 +186,11 @@ class ViewerCameraMessage(Message):
     up_direction: Tuple[float, float, float]
     camera_type: Literal["orthographic", "perspective"]
 
+@dataclasses.dataclass
+class SetModelMessage(Message):
+    """Custom message: client sends model name to server."""
+    model_name: str
+
 
 # The list of scene pointer events supported by the viser frontend.
 ScenePointerEventType = Literal["click", "rect-select"]

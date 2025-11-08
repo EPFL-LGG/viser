@@ -1555,6 +1555,11 @@ export interface SetGuiPanelLabelMessage {
   label: string | null;
 }
 
+export interface SetModelMessage {
+  type: "SetModelMessage";
+  model_name: string;
+}
+
 export type Message =
   | CameraFrustumMessage
   | GlbMessage
@@ -1647,7 +1652,8 @@ export type Message =
   | ShareUrlRequest
   | ShareUrlUpdated
   | ShareUrlDisconnect
-  | SetGuiPanelLabelMessage;
+  | SetGuiPanelLabelMessage
+  | SetModelMessage;
 export type SceneNodeMessage =
   | CameraFrustumMessage
   | GlbMessage

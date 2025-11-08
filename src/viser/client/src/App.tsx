@@ -250,6 +250,7 @@ function ViewerRoot() {
         {messageSource === "file_playback" && (
           <PlaybackFromFile fileUrl={playbackPath!} />
         )}
+        {messageSource === "websocket" && <InitialModelSender />}
       </ViewerContents>
     </ViewerContext.Provider>
   );
@@ -968,4 +969,30 @@ function ViserLogo() {
       </Modal>
     </>
   );
+}
+
+function InitialModelSender() {
+  const viewer = React.useContext(ViewerContext)!;
+  const model = new URLSearchParams(window.location.search).get("model");
+  const websocketConnected = viewer.useGui((state) => state.websocketConnected);
+
+  const throttledSender = useThrottledMessageSender(20);
+
+  useEffect(() => {
+    if (!model) return;
+    if (!websocketConnected) return;
+
+    // Delay sending to ensure client handlers are registered
+    const timeout = setTimeout(() => {
+      throttledSender.send({
+        type: "SetModelMessage",
+        model_name: model,
+      });
+      console.log(`Sent initial model via throttled sender: ${model}`);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [model, websocketConnected, throttledSender]);
+
+  return null;
 }
