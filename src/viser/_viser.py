@@ -610,6 +610,17 @@ class ClientHandle(DeprecatedAttributeShim if not TYPE_CHECKING else object):
         render_ready_event.wait()
         assert out is not None
         return out
+    
+    def register_handler(
+        self,
+        message_type: _messages.Message,
+        handler: Callable[[Any], Coroutine[Any, Any, None]]
+    ) -> None:
+        """
+        Public API for registering websocket message handlers.
+        """
+        # Simply forward to the internal WebSocketConnection.
+        self._websock_connection.register_handler(message_type, handler)
 
 
 class ViserServer(DeprecatedAttributeShim if not TYPE_CHECKING else object):
