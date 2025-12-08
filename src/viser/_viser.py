@@ -621,6 +621,21 @@ class ClientHandle(DeprecatedAttributeShim if not TYPE_CHECKING else object):
         """
         # Simply forward to the internal WebSocketConnection.
         self._websock_connection.register_handler(message_type, handler)
+    
+    def get_scene_serializer(self) -> StateSerializer:
+        """Get handle for serializing the scene state.
+
+        This can be used for saving .viser files, which are used for offline
+        visualization.
+        """
+        serializer = self._websock_connection.get_message_serializer(
+            # Don't record GUI messages. This feels brittle.
+            filter=lambda message: "Gui" not in type(message).__name__
+        )
+        # Insert current scene state.
+        for message in self._websock_connection.get_message_buffer().message_from_id.values():
+            serializer._insert_message(message)
+        return serializer
 
 
 class ViserServer(DeprecatedAttributeShim if not TYPE_CHECKING else object):
