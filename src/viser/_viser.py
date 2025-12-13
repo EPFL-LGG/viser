@@ -630,7 +630,7 @@ class ClientHandle(DeprecatedAttributeShim if not TYPE_CHECKING else object):
         """
         serializer = self._websock_connection.get_message_serializer(
             # Don't record GUI messages. This feels brittle.
-            filter=lambda message: "Gui" not in type(message).__name__ and "SetCameraPositionMessage" not in type(message).__name__
+            filter=lambda message: "Gui" not in type(message).__name__ and "Camera" not in type(message).__name__
         )
         # Insert current scene state.
         for message in self._websock_connection.get_message_buffer().message_from_id.values():
