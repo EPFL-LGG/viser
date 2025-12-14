@@ -1244,6 +1244,9 @@ class SceneApi:
         wxyz: tuple[float, float, float, float] | np.ndarray = (1.0, 0.0, 0.0, 0.0),
         position: tuple[float, float, float] | np.ndarray = (0.0, 0.0, 0.0),
         visible: bool = True,
+        box: bool = False,
+        font: str = "Arial",
+        text_color: RgbTupleOrArray = (255, 255, 255),
     ) -> LabelHandle:
         """Add a 2D label to the scene.
 
@@ -1260,7 +1263,7 @@ class SceneApi:
         Returns:
             Handle for manipulating scene node.
         """
-        message = _messages.LabelMessage(name, _messages.LabelProps(text))
+        message = _messages.LabelMessage(name, _messages.LabelProps(text, box, font, _encode_rgb(text_color)))
         return LabelHandle._make(self, message, name, wxyz, position, visible=visible)
 
     @deprecated_positional_shim

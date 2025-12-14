@@ -397,33 +397,42 @@ function createObjectFactory(
     // Add a 2D label.
     case "LabelMessage": {
       return {
-        makeObject: (ref, children) => (
+        makeObject: (ref, children) => {
+          const textColor = message.props.text_color ? `rgb(${message.props.text_color[0]}, ${message.props.text_color[1]}, ${message.props.text_color[2]})` : "#333";
+            
           // We wrap with <group /> because Html doesn't implement THREE.Object3D.
-          <group ref={ref}>
-            <Html>
-              <div
-                style={{
-                  width: "10em",
-                  fontSize: "0.8em",
-                  transform: "translateX(0.1em) translateY(0.5em)",
-                }}
-              >
-                <span
+          return (
+            <group ref={ref}>
+              <Html>
+                <div
                   style={{
-                    background: "#fff",
-                    border: "1px solid #777",
-                    borderRadius: "0.2em",
-                    color: "#333",
-                    padding: "0.2em",
+                    width: "10em",
+                    fontSize: "0.8em",
+                    transform: "translateX(0.1em) translateY(0.5em)",
                   }}
                 >
-                  {message.props.text}
-                </span>
-              </div>
-            </Html>
-            {children}
-          </group>
-        ),
+                  <span
+                    style={{
+                      ...(message.props.box !== false && {
+                        background: "#fff",
+                        border: "1px solid #777",
+                        borderRadius: "0.2em",
+                        padding: "0.2em",
+                      }),
+                      ...(message.props.font && {
+                        fontFamily: message.props.font,
+                      }),
+                      color: textColor,  
+                    }}
+                  >
+                    {message.props.text}
+                  </span>
+                </div>
+              </Html>
+              {children}
+            </group>
+          );
+        },
         unmountWhenInvisible: true,
       };
     }

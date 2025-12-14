@@ -100,7 +100,7 @@ export interface GridMessage {
 export interface LabelMessage {
   type: "LabelMessage";
   name: string;
-  props: { text: string };
+  props: { text: string, box: boolean; font: string; text_color: [number, number, number] };
 }
 /** Add a 3D gui element to the scene.
  *

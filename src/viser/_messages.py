@@ -387,6 +387,12 @@ class LabelMessage(_CreateSceneNodeMessage):
 class LabelProps:
     text: str
     """Text content of the label."""
+    box: bool = True
+    """Whether to show a box around the label."""
+    font: str = "Arial"
+    """Font family of the label."""
+    text_color: Tuple[int, int, int] = (255, 255, 255)
+    """Color of the text as RGB integers."""
 
 
 @dataclasses.dataclass
