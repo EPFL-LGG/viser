@@ -919,6 +919,12 @@ function ViserLogo() {
       >
         <Box pt="lg" pb="xs">
           Viser is a 3D visualization toolkit developed at UC Berkeley.
+          <br />
+          This application extends Viser with custom features and modifications.
+          <br />
+          Projet de recherche optionnel en Informatique I (EPFL, January 2026)
+          <br />
+          Author: Jiří Gebauer
         </Box>
         <Box pb="lg">
           <Anchor
@@ -926,7 +932,7 @@ function ViserLogo() {
             target="_blank"
             style={{ fontWeight: "600" }}
           >
-            Documentation
+            Viser Documentation
           </Anchor>
           &nbsp;&nbsp;&bull;&nbsp;&nbsp;
           <Anchor
@@ -934,7 +940,7 @@ function ViserLogo() {
             target="_blank"
             style={{ fontWeight: "600" }}
           >
-            GitHub
+            Original Viser GitHub
           </Anchor>
         </Box>
         <Divider />
@@ -950,7 +956,7 @@ function ViserLogo() {
           px="md"
           pt="sm"
         >
-          Thanks to our contributors!{" "}
+          Thanks to the original Viser contributors!{" "}
           {GITHUB_CONTRIBUTORS.map(
             (contributor: Contributor, index: number) => (
               <span key={contributor.login}>
